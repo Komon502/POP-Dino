@@ -482,36 +482,36 @@
         const gameCountryName = document.getElementById('gameCountryName');
         const connectionStatus = document.getElementById('connectionStatus');
 
-        // ===== API FUNCTIONS =====
-        async function apiRequest(endpoint, method = 'GET', data = null) {
-            try {
-                if (CONFIG.USE_LOCAL_STORAGE) {
-                    return await mockAPI(endpoint, method, data);
-                }
+        // // ===== API FUNCTIONS =====
+        // async function apiRequest(endpoint, method = 'GET', data = null) {
+        //     try {
+        //         if (CONFIG.USE_LOCAL_STORAGE) {
+        //             return await mockAPI(endpoint, method, data);
+        //         }
 
-                const options = {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                };
+        //         const options = {
+        //             method,
+        //             headers: {
+        //                 'Content-Type': 'application/json'
+        //             }
+        //         };
 
-                if (data) {
-                    options.body = JSON.stringify(data);
-                }
+        //         if (data) {
+        //             options.body = JSON.stringify(data);
+        //         }
 
-                const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, options);
+        //         const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, options);
 
-                if (!response.ok) {
-                    throw new Error(`API Error: ${response.status}`);
-                }
+        //         if (!response.ok) {
+        //             throw new Error(`API Error: ${response.status}`);
+        //         }
 
-                return await response.json();
-            } catch (error) {
-                console.error('API Request failed:', error);
-                throw error;
-            }
-        }
+        //         return await response.json();
+        //     } catch (error) {
+        //         console.error('API Request failed:', error);
+        //         throw error;
+        //     }
+        // }
 
         // // Mock API สำหรับการทดสอบ (จะถูกแทนที่ด้วย real API)
         // async function mockAPI(endpoint, method, data) {
