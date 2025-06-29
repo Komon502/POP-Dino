@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -98,8 +99,13 @@
         }
 
         @keyframes glow {
-            from { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2); }
-            to { text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.4); }
+            from {
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 20px rgba(255, 255, 255, 0.2);
+            }
+
+            to {
+                text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3), 0 0 30px rgba(255, 255, 255, 0.4);
+            }
         }
 
         .dino-container {
@@ -150,6 +156,7 @@
                 opacity: 1;
                 transform: translateY(0) scale(1);
             }
+
             100% {
                 opacity: 0;
                 transform: translateY(-100px) scale(1.5);
@@ -230,9 +237,17 @@
             min-width: 40px;
         }
 
-        .rank.first { color: #FFD700; }
-        .rank.second { color: #C0C0C0; }
-        .rank.third { color: #CD7F32; }
+        .rank.first {
+            color: #FFD700;
+        }
+
+        .rank.second {
+            color: #C0C0C0;
+        }
+
+        .rank.third {
+            color: #CD7F32;
+        }
 
         .country-info-item {
             flex: 1;
@@ -275,8 +290,13 @@
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
         }
 
         .error-message {
@@ -326,26 +346,27 @@
                 flex-direction: column;
                 padding: 10px;
             }
-            
+
             .dino {
                 width: 250px;
                 height: 250px;
                 font-size: 6rem;
             }
-            
+
             .score-display {
                 font-size: 2rem;
             }
-            
+
             .logo {
                 font-size: 1.5rem;
             }
         }
     </style>
 </head>
+
 <body>
     <div class="connection-status" id="connectionStatus">🔄 Connecting...</div>
-    
+
     <div class="header">
         <div class="logo">🦕 Pop Dino - Global Battle</div>
         <div class="country-info" id="countryInfo">
@@ -392,10 +413,10 @@
     <script>
         // ===== CONFIGURATION =====
         const CONFIG = {
-            API_BASE_URL: 'https://your-api-server.com/api', // เปลี่ยนเป็น URL ของ server จริง
-            USE_LOCAL_STORAGE: true, // ใช้ localStorage สำหรับทดสอบ
-            SYNC_INTERVAL: 2000, // Sync ทุก 2 วินาที
-            BATCH_SIZE: 50 // ส่งคลิกเป็นชุด
+            API_BASE_URL: 'https://your-project.vercel.app/api', // เปลี่ยนเป็น URL ของคุณ
+            USE_LOCAL_STORAGE: false, // เปลี่ยนเป็น false
+            SYNC_INTERVAL: 2000,
+            BATCH_SIZE: 50
         };
 
         // ===== COUNTRY DATA =====
@@ -480,7 +501,7 @@
                 }
 
                 const response = await fetch(`${CONFIG.API_BASE_URL}${endpoint}`, options);
-                
+
                 if (!response.ok) {
                     throw new Error(`API Error: ${response.status}`);
                 }
@@ -492,54 +513,54 @@
             }
         }
 
-        // Mock API สำหรับการทดสอบ (จะถูกแทนที่ด้วย real API)
-        async function mockAPI(endpoint, method, data) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    try {
-                        if (endpoint === '/leaderboard') {
-                            const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
-                            resolve({ leaderboard: scores });
-                        }
-                        else if (endpoint === '/click' && method === 'POST') {
-                            const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
-                            const { country, clicks } = data;
-                            
-                            if (!scores[country]) scores[country] = 0;
-                            scores[country] += clicks;
-                            
-                            localStorage.setItem('popDino_globalScores', JSON.stringify(scores));
-                            resolve({ 
-                                success: true, 
-                                countryTotal: scores[country],
-                                rank: calculateRank(country, scores)
-                            });
-                        }
-                        else if (endpoint.startsWith('/country/')) {
-                            const country = endpoint.split('/')[2];
-                            const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
-                            resolve({ 
-                                country,
-                                total: scores[country] || 0,
-                                rank: calculateRank(country, scores)
-                            });
-                        }
-                        else {
-                            reject(new Error('Endpoint not found'));
-                        }
-                    } catch (error) {
-                        reject(error);
-                    }
-                }, Math.random() * 200 + 100);
-            });
-        }
+        // // Mock API สำหรับการทดสอบ (จะถูกแทนที่ด้วย real API)
+        // async function mockAPI(endpoint, method, data) {
+        //     return new Promise((resolve, reject) => {
+        //         setTimeout(() => {
+        //             try {
+        //                 if (endpoint === '/leaderboard') {
+        //                     const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
+        //                     resolve({ leaderboard: scores });
+        //                 }
+        //                 else if (endpoint === '/click' && method === 'POST') {
+        //                     const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
+        //                     const { country, clicks } = data;
 
-        function calculateRank(country, scores) {
-            const sortedCountries = Object.entries(scores)
-                .sort(([,a], [,b]) => b - a);
-            const rank = sortedCountries.findIndex(([c]) => c === country) + 1;
-            return rank || 0;
-        }
+        //                     if (!scores[country]) scores[country] = 0;
+        //                     scores[country] += clicks;
+
+        //                     localStorage.setItem('popDino_globalScores', JSON.stringify(scores));
+        //                     resolve({
+        //                         success: true,
+        //                         countryTotal: scores[country],
+        //                         rank: calculateRank(country, scores)
+        //                     });
+        //                 }
+        //                 else if (endpoint.startsWith('/country/')) {
+        //                     const country = endpoint.split('/')[2];
+        //                     const scores = JSON.parse(localStorage.getItem('popDino_globalScores') || '{}');
+        //                     resolve({
+        //                         country,
+        //                         total: scores[country] || 0,
+        //                         rank: calculateRank(country, scores)
+        //                     });
+        //                 }
+        //                 else {
+        //                     reject(new Error('Endpoint not found'));
+        //                 }
+        //             } catch (error) {
+        //                 reject(error);
+        //             }
+        //         }, Math.random() * 200 + 100);
+        //     });
+        // }
+
+        // function calculateRank(country, scores) {
+        //     const sortedCountries = Object.entries(scores)
+        //         .sort(([, a], [, b]) => b - a);
+        //     const rank = sortedCountries.findIndex(([c]) => c === country) + 1;
+        //     return rank || 0;
+        // }
 
         // ===== COUNTRY DETECTION =====
         async function detectCountry() {
@@ -561,7 +582,7 @@
                         continue;
                     }
                 }
-                
+
                 return 'XX';
             } catch (error) {
                 console.error('All country detection methods failed:', error);
@@ -629,9 +650,9 @@
             effect.textContent = '+1';
             effect.style.left = x + 'px';
             effect.style.top = y + 'px';
-            
+
             dinoContainer.appendChild(effect);
-            
+
             setTimeout(() => {
                 if (effect.parentNode) {
                     effect.parentNode.removeChild(effect);
@@ -645,17 +666,17 @@
             gameState.personalClicks++;
             gameState.pendingClicks++;
             gameState.clickTimes.push(Date.now());
-            
+
             // Visual feedback
             dino.classList.add('clicked');
             setTimeout(() => dino.classList.remove('clicked'), 100);
-            
+
             // Create click effect
             const rect = dinoContainer.getBoundingClientRect();
             const x = event.clientX - rect.left;
             const y = event.clientY - rect.top;
             createClickEffect(x, y);
-            
+
             // Optimistic update
             gameState.countryClicks++;
             updateScoreDisplay();
@@ -705,11 +726,11 @@
 
         function displayLeaderboard(scores) {
             const sortedCountries = Object.entries(scores)
-                .sort(([,a], [,b]) => b - a)
+                .sort(([, a], [, b]) => b - a)
                 .slice(0, 20);
-            
+
             leaderboardList.innerHTML = '';
-            
+
             if (sortedCountries.length === 0) {
                 leaderboardList.innerHTML = `
                     <div class="loading">
@@ -719,23 +740,23 @@
                 `;
                 return;
             }
-            
+
             sortedCountries.forEach(([countryCode, score], index) => {
                 const country = countryData[countryCode] || countryData['XX'];
                 const item = document.createElement('div');
                 item.className = 'leaderboard-item';
-                
+
                 if (countryCode === gameState.userCountry) {
                     item.classList.add('current-country');
                     gameState.countryRank = index + 1;
                 }
-                
+
                 const rank = index + 1;
                 let rankClass = '';
                 if (rank === 1) rankClass = 'first';
                 else if (rank === 2) rankClass = 'second';
                 else if (rank === 3) rankClass = 'third';
-                
+
                 item.innerHTML = `
                     <div class="rank ${rankClass}">#${rank}</div>
                     <div class="country-info-item">
@@ -744,7 +765,7 @@
                     </div>
                     <div class="country-score-small">${score.toLocaleString()}</div>
                 `;
-                
+
                 leaderboardList.appendChild(item);
             });
 
@@ -775,7 +796,7 @@
                 const now = Date.now();
                 if (now - lastClickTime < MIN_CLICK_INTERVAL) return;
                 lastClickTime = now;
-                
+
                 const event = new MouseEvent('click', {
                     clientX: dinoContainer.offsetLeft + dinoContainer.offsetWidth / 2,
                     clientY: dinoContainer.offsetTop + dinoContainer.offsetHeight / 2
@@ -788,17 +809,17 @@
         async function initializeGame() {
             updateConnectionStatus(false);
             connectionStatus.textContent = '🔄 Detecting location...';
-            
+
             // Detect country
             gameState.userCountry = await detectCountry();
             updateCountryDisplay(gameState.userCountry);
-            
+
             // Load personal progress
             const savedClicks = localStorage.getItem(`popDino_personal_${gameState.userCountry}`);
             if (savedClicks) {
                 gameState.personalClicks = parseInt(savedClicks);
             }
-            
+
             // Get initial country data
             try {
                 const countryDataResult = await apiRequest(`/country/${gameState.userCountry}`);
@@ -807,7 +828,7 @@
             } catch (error) {
                 console.error('Failed to load country data:', error);
             }
-            
+
             updateScoreDisplay();
             loadLeaderboard();
             updateConnectionStatus(true);
@@ -841,4 +862,5 @@
 
     </script>
 </body>
+
 </html>
