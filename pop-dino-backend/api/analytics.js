@@ -66,10 +66,3 @@ function calculateHourlyStats(recentClicks) {
         clicksPerMinute: Math.round(hourlyClicks / 60)
     };
 }
-
-// เพิ่มใน API functions
-console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`, {
-    country: req.body?.country,
-    clicks: req.body?.clicks,
-    userAgent: req.headers['user-agent']
-});
