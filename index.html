@@ -311,8 +311,8 @@
         }
 
         .reset-notice {
-            background: rgba(255, 255, 0, 0.1);
-            border: 2px solid rgba(255, 255, 0, 0.3);
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid rgba(0, 255, 0, 0.3);
             border-radius: 10px;
             padding: 10px;
             margin-bottom: 20px;
@@ -357,7 +357,7 @@
     <div class="main-container">
         <div class="game-area">
             <div class="reset-notice">
-                🚀 Fresh Start! All countries begin at 0 points. May the best nation win!
+                ✅ ข้อมูลถูกบันทึกแล้ว! รีเฟรชเพจได้เลย คะแนนจะไม่หาย
             </div>
             <div class="country-score">
                 <div class="country-name" id="gameCountryName">Your Country</div>
@@ -375,7 +375,7 @@
                 <h3>🌍 Global Competition</h3>
                 <p>Help your country dominate the world leaderboard!</p>
                 <p>Every click counts towards your nation's glory!</p>
-                <p><strong>Fair competition - all countries start at 0!</strong></p>
+                <p><strong>คะแนนจะถูกบันทึกอัตโนมัติ!</strong></p>
             </div>
         </div>
 
@@ -446,22 +446,23 @@
         const gameCountryName = document.getElementById('gameCountryName');
         const connectionStatus = document.getElementById('connectionStatus');
 
-        // Memory storage - ALL COUNTRIES START AT 0!
-        let memoryStorage = {
-            countryScores: {
-                // All countries start at 0 for fair competition
-            },
-            personalStats: {
-                // Track individual contributions
+        // localStorage functions - เปลี่ยนจาก memory storage เป็น localStorage
+        function saveToLocalStorage(key, data) {
+            try {
+                localStorage.setItem('popDino_' + key, JSON.stringify(data));
+            } catch (e) {
+                console.warn('Failed to save to localStorage:', e);
             }
-        };
-
-        function saveToMemory(key, data) {
-            memoryStorage[key] = data;
         }
 
-        function getFromMemory(key, defaultValue = null) {
-            return memoryStorage[key] || defaultValue;
+        function getFromLocalStorage(key, defaultValue = null) {
+            try {
+                const data = localStorage.getItem('popDino_' + key);
+                return data ? JSON.parse(data) : defaultValue;
+            } catch (e) {
+                console.warn('Failed to load from localStorage:', e);
+                return defaultValue;
+            }
         }
 
         // Country Detection
@@ -525,17 +526,17 @@
             connectionStatus.textContent = online ? '🟢 Online' : '🔴 Offline';
         }
 
-        // Mock server functions (using memory storage)
+        // Server functions using localStorage
         async function updateCountryScore(countryCode, increment = 1) {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const scores = getFromMemory('countryScores', {});
+                    const scores = getFromLocalStorage('countryScores', {});
                     // Initialize country score to 0 if it doesn't exist
                     if (!(countryCode in scores)) {
                         scores[countryCode] = 0;
                     }
                     scores[countryCode] += increment;
-                    saveToMemory('countryScores', scores);
+                    saveToLocalStorage('countryScores', scores);
                     gameState.leaderboard = scores;
                     resolve(scores[countryCode]);
                 }, Math.random() * 100 + 50);
@@ -545,7 +546,7 @@
         async function getLeaderboard() {
             return new Promise((resolve) => {
                 setTimeout(() => {
-                    const scores = getFromMemory('countryScores', {});
+                    const scores = getFromLocalStorage('countryScores', {});
                     resolve(scores);
                 }, Math.random() * 100 + 50);
             });
@@ -607,8 +608,8 @@
             updateScoreDisplay();
             updateCPS();
             
-            // Save personal progress
-            saveToMemory('personalClicks_' + gameState.userCountry, gameState.personalClicks);
+            // Save personal progress to localStorage
+            saveToLocalStorage('personalClicks_' + gameState.userCountry, gameState.personalClicks);
         }
 
         // Leaderboard
@@ -696,14 +697,14 @@
             gameState.userCountry = await detectCountry();
             updateCountryDisplay(gameState.userCountry);
             
-            // Load existing personal clicks for this country
-            gameState.personalClicks = getFromMemory('personalClicks_' + gameState.userCountry, 0);
+            // Load existing personal clicks for this country from localStorage
+            gameState.personalClicks = getFromLocalStorage('personalClicks_' + gameState.userCountry, 0);
             
-            // Initialize country score to 0 if it doesn't exist
-            const scores = getFromMemory('countryScores', {});
+            // Initialize country score from localStorage
+            const scores = getFromLocalStorage('countryScores', {});
             if (!(gameState.userCountry in scores)) {
                 scores[gameState.userCountry] = 0;
-                saveToMemory('countryScores', scores);
+                saveToLocalStorage('countryScores', scores);
             }
             gameState.countryClicks = scores[gameState.userCountry];
             
@@ -718,7 +719,7 @@
             loadLeaderboard();
             
             // Simulate other countries clicking occasionally (for demo purposes)
-            const scores = getFromMemory('countryScores', {});
+            const scores = getFromLocalStorage('countryScores', {});
             const allCountries = Object.keys(countryData);
             
             // Randomly add activity from other countries
@@ -729,7 +730,7 @@
                         scores[randomCountry] = 0;
                     }
                     scores[randomCountry] += Math.floor(Math.random() * 2) + 1; // Add 1-2 points
-                    saveToMemory('countryScores', scores);
+                    saveToLocalStorage('countryScores', scores);
                 }
             }
         }, 3000);
