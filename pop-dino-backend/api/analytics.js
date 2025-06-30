@@ -31,6 +31,7 @@ export default async function handler(req, res) {
             topCountries: Object.entries(leaderboard)
                 .sort(([, a], [, b]) => b - a)
                 .slice(0, 5)
+                .map(([country, score]) => ({ country, score }))
         });
 
     } catch (error) {
@@ -45,8 +46,8 @@ async function getLeaderboard() {
 
     for (const key of keys) {
         const country = key.replace('country:', '');
-        const score = await kv.get(key) || 0;
-        leaderboard[country] = parseInt(score);
+        const score = await kv.get(key);
+        leaderboard[country] = parseInt(score, 10) || 0;
     }
 
     return leaderboard;
@@ -56,10 +57,17 @@ function calculateHourlyStats(recentClicks) {
     const now = Date.now();
     const oneHour = 60 * 60 * 1000;
 
-    const hourlyClicks = recentClicks
-        .map(clickStr => JSON.parse(clickStr))
-        .filter(click => (now - click.timestamp) < oneHour)
-        .length;
+    let hourlyClicks = 0;
+    for (const clickStr of recentClicks) {
+        try {
+            const click = JSON.parse(clickStr);
+            if (click && click.timestamp && (now - click.timestamp) < oneHour) {
+                hourlyClicks++;
+            }
+        } catch (e) {
+            // Ignore malformed entries
+        }
+    }
 
     return {
         lastHour: hourlyClicks,

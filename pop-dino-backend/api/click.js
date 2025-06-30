@@ -23,6 +23,7 @@ export default async function handler(req, res) {
         }
 
         // ใน click API - เพิ่ม rate limiting
+        const ip = req.headers['x-forwarded-for'] || req.connection.remoteAddress || 'unknown';
         const rateLimitKey = `rate_limit:${ip}:${sessionId}`;
         const requests = await kv.incr(rateLimitKey);
         await kv.expire(rateLimitKey, 60);
@@ -34,9 +35,6 @@ export default async function handler(req, res) {
         // Update country score
         const countryKey = `country:${country}`;
         const newTotal = await kv.incrby(countryKey, clicks);
-
-        // Update rate limit
-        await kv.setex(rateLimitKey, 60, recentClicks + clicks);
 
         // Calculate rank
         const leaderboard = await getLeaderboard();
